@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Situation Challenge</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<a class="back" href="index.html">Back to Speaking Games</a>
+<h1>Situation Challenge</h1>
+<p class="sub">Read the situation. Say the right thing before the time runs out!</p>
+<p class="note" id="note" hidden>This browser can’t check speech. Use Google Chrome or Microsoft Edge on a laptop. You can still play with the “I said it” button.</p>
+
+<section class="card" id="start">
+  <p class="q">Ready?</p>
+  <p class="cue">You will see 8 situations. Tap the microphone, then speak within 10 seconds. A correct answer gives 10 points, plus 1 point for every second left.</p>
+  <div class="row"><button class="btn" id="go" type="button">Start</button></div>
+</section>
+
+<section class="card" id="play" hidden>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="meta"><span id="count"></span><span id="score"></span></div>
+  <p class="q" id="q"></p>
+  <p class="cue" id="id"></p>
+  <div class="bar" aria-hidden="true"><i id="timer" style="width:100%"></i></div>
+  <p class="meta"><span id="secs">10 s</span><span></span></p>
+  <div class="row">
+    <button class="btn" id="mic" type="button">🎤 Speak</button>
+    <button class="ghost" id="self" type="button" hidden>I said it</button>
+  </div>
+  <div class="res" id="res" hidden></div>
+  <div class="row"><button class="btn" id="next" type="button" hidden>Next</button></div>
+</section>
+
+<section class="card" id="end" hidden>
+  <p class="cue" style="margin:0">Your score</p>
+  <p class="big" id="final"></p>
+  <p id="msg" style="font-weight:700"></p>
+  <div class="row"><button class="btn" id="again" type="button">Play again</button></div>
+</section>
+</main>
+
+<script src="speech.js"></script>
+<script>
+var S=[
+{e:"It’s 7 a.m. You meet your friend at school.",i:"Sekarang jam 7 pagi. Kamu bertemu temanmu di sekolah. Sapa dia.",p:[/\bgood morning\b/,/\bmorning\b/],m:"Good morning!"},
+{e:"It’s 2 p.m. You see your lecturer in the hallway.",i:"Jam 2 siang. Kamu melihat dosenmu di lorong. Sapa dengan sopan.",p:[/\bgood afternoon\b/],m:"Good afternoon, sir."},
+{e:"It’s 8 p.m. You meet your neighbor.",i:"Jam 8 malam. Kamu bertemu tetanggamu. Sapa dia.",p:[/\bgood evening\b/],m:"Good evening!"},
+{e:"You haven’t seen your best friend for a year.",i:"Kamu sudah setahun tidak bertemu sahabatmu. Sapa dia.",p:[/\blong time\b/,/\bhow have you been\b/,/\bhavent seen you\b/,/\bmissed you\b/],m:"Long time no see! How have you been?"},
+{e:"You meet a new classmate. Introduce yourself.",i:"Kamu bertemu teman sekelas baru. Perkenalkan dirimu.",p:[/\bmy name is\b/,/\bi am [a-z]+/,/\bcall me\b/],m:"Hi! My name is Lany."},
+{e:"Your lecturer introduces you to a guest.",i:"Dosenmu memperkenalkanmu kepada seorang tamu. Ucapkan senang bertemu dengan sopan.",p:[/\b(pleasure|nice|glad|pleased) to meet you\b/],m:"It’s a pleasure to meet you."},
+{e:"Someone asks, “How are you?” You are very tired.",i:"Seseorang bertanya kabarmu. Jawab bahwa kamu sangat lelah.",p:[/\b(tired|exhausted|sleepy)\b/],m:"I’m very tired today."},
+{e:"You say goodbye to your friend.",i:"Kamu berpamitan kepada temanmu.",p:[/\bsee you\b/,/\bbye\b/,/\bgoodbye\b/,/\btake care\b/],m:"See you later! Take care."}
+];
+var $=SP.$,deck,k,score,done,tmr,t0,LIMIT=10;
+if(!SP.supported){$("note").hidden=false;$("self").hidden=false;$("mic").hidden=true}
+function shuffle(a){a=a.slice();for(var x=a.length-1;x>0;x--){var j=Math.floor(Math.random()*(x+1));var t=a[x];a[x]=a[j];a[j]=t}return a}
+function begin(){deck=shuffle(S);k=0;score=0;$("start").hidden=true;$("end").hidden=true;$("play").hidden=false;round()}
+function round(){
+  done=false;var r=deck[k];clearInterval(tmr);
+  $("count").textContent="Situation "+(k+1)+" of "+deck.length;
+  $("score").textContent="Score: "+score;
+  $("fill").style.width=(k/deck.length*100)+"%";
+  $("q").textContent=r.e;$("id").textContent=r.i;
+  $("timer").style.width="100%";$("secs").textContent=LIMIT+" s";
+  $("res").hidden=true;$("next").hidden=true;$("mic").disabled=false;$("self").disabled=false;
+}
+function left(){return Math.max(0,LIMIT-(Date.now()-t0)/1000)}
+function show(cls,html){var e=$("res");e.hidden=false;e.className="res "+cls;e.innerHTML=html}
+function finishRound(){done=true;clearInterval(tmr);$("mic").disabled=true;$("self").disabled=true;$("next").hidden=false;$("next").textContent=(k===deck.length-1)?"See my score":"Next situation";$("score").textContent="Score: "+score}
+$("go").onclick=begin;$("again").onclick=begin;
+$("mic").onclick=function(){
+  if(done)return;var b=$("mic"),r=deck[k],timedOut=false;b.disabled=true;b.textContent="Listening…";
+  SP.once(function(res){
+    b.textContent="🎤 Speak";clearInterval(tmr);if(done)return;
+    if(timedOut){show("no","<p><b>Time’s up!</b></p><p>Example: “"+SP.esc(r.m)+"”</p>");finishRound();return}
+    if(res.err){b.disabled=false;show("no","<p>"+SP.esc(SP.errMsg(res.err))+"</p>");return}
+    var sec=Math.round(left()),heard=SP.esc(res.alts[0]);
+    if(SP.any(r.p,res.alts)){
+      score+=10+sec;
+      show("ok","<p><b>Great!</b> +"+(10+sec)+" points</p><p class='heard'>I heard: “"+heard+"”</p><p>Example: “"+SP.esc(r.m)+"”</p>");
+    }else{
+      show("no","<p><b>Not quite.</b></p><p class='heard'>I heard: “"+heard+"”</p><p>Example: “"+SP.esc(r.m)+"”</p>");
+    }
+    finishRound();
+  },function(){
+    t0=Date.now();
+    tmr=setInterval(function(){
+      var l=left();$("timer").style.width=(l/LIMIT*100)+"%";$("secs").textContent=Math.ceil(l)+" s";
+      if(l<=0){timedOut=true;clearInterval(tmr);SP.stop();
+        /* stop() aborts the recognizer, so end the round here */
+        if(!done){b.textContent="🎤 Speak";show("no","<p><b>Time’s up!</b></p><p>Example: “"+SP.esc(r.m)+"”</p>");finishRound()}}
+    },100);
+  });
+};
+$("self").onclick=function(){if(done)return;score+=10;show("ok","<p>Example: “"+SP.esc(deck[k].m)+"”</p>");finishRound()};
+$("next").onclick=function(){k++;if(k>=deck.length)finish();else round()};
+function finish(){
+  SP.stop();SP.cancelSpeech();clearInterval(tmr);$("play").hidden=true;$("end").hidden=false;
+  $("final").textContent=score+" pts";
+  var avg=score/deck.length;
+  $("msg").textContent=avg>=15?"Fast and correct! You are a greeting master.":avg>=9?"Good job! Try to answer a little faster.":"Nice try. Play again and say the greeting more quickly.";
+}
+</script>
+</body>
+</html>

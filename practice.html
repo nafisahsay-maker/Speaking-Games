@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let’s Talk: Greetings and Introductions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700&display=swap">
+<style>
+:root{--bg:#ffe3c2;--card:#fff8ef;--ink:#2b2a4c;--muted:#6a5f78;--accent:#ff7a45;--ok:#1f9d6b;--okbg:#d5f3e5;--bad:#d6334f;--badbg:#fbdbe0;--line:#f0c99c}
+@media (prefers-color-scheme:dark){:root{--bg:#241f3a;--card:#322b4f;--ink:#fff1e0;--muted:#c3b5d6;--accent:#ff9466;--ok:#5fe0ae;--okbg:#1d4a3d;--bad:#ff8aa0;--badbg:#5a2638;--line:#4c4372}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;font-size:18px;line-height:1.5;min-height:100vh}
+main{max-width:680px;margin:0 auto;padding:24px 16px 48px}
+h1{font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;font-size:clamp(30px,7vw,44px);line-height:1.05;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.note{background:var(--badbg);border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:16px;font-weight:700}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab,.chip,.btn,.ghost{font:inherit;font-weight:800;cursor:pointer;border-radius:99px;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:10px 18px}
+.tab{flex:1}
+.tab.on,.chip.on{background:var(--accent);border-color:var(--accent);color:#2b1608}
+.btn{background:var(--accent);border-color:var(--accent);color:#2b1608}
+.ghost:hover,.chip:hover,.tab:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+.card{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:22px 20px}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-weight:700;font-size:15px;margin-bottom:10px}
+.phrase{font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1.15;margin:0}
+.mean{color:var(--muted);margin:4px 0 18px}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.res{margin-top:16px;padding:14px 16px;border-radius:14px;background:var(--bg)}
+.res.ok{background:var(--okbg)}
+.pct{font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;font-size:34px;line-height:1;margin:0 0 6px}
+.w{display:inline-block;padding:0 6px;border-radius:8px;margin:2px 2px;font-weight:700}
+.w.hit{background:var(--okbg);color:var(--ok)}
+.w.miss{background:var(--badbg);color:var(--bad)}
+.heard{color:var(--muted);font-size:16px;margin:6px 0 0}
+.chat{display:flex;flex-direction:column;margin:14px 0}
+.b{max-width:85%;padding:10px 14px;border-radius:16px;margin:5px 0;border:2px solid var(--line);background:var(--bg)}
+.b small{display:block;color:var(--muted);font-weight:700;font-size:13px}
+.b.me{align-self:flex-end;background:var(--accent);border-color:var(--accent);color:#2b1608}
+.b.me small{color:#2b1608}
+.group{margin:0 0 14px}
+.group p{margin:0 0 6px;font-weight:800}
+.group .chip{margin:0 6px 6px 0}
+label.chk{display:flex;gap:8px;align-items:center;font-weight:700;margin:6px 0 14px}
+.target{font-family:"Baloo 2",system-ui,sans-serif;font-weight:600;font-size:clamp(22px,5.5vw,28px);line-height:1.3;margin:4px 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<a href="index.html" style="color:var(--muted);font-weight:700;text-decoration:none;font-size:15px">Back to Speaking Games</a>
+<h1>Let’s Talk!</h1>
+<p class="sub">Speaking practice: greetings and introductions</p>
+<p class="note" id="note" hidden>Your browser can’t check your speech. Please use Google Chrome or Microsoft Edge on a laptop. You can still listen and practice, then tap “I said it”.</p>
+
+<div class="tabs">
+  <button class="tab on" id="t1" type="button">Listen &amp; Repeat</button>
+  <button class="tab" id="t2" type="button">Role-play</button>
+</div>
+
+<section id="s1" class="card">
+  <div class="meta"><span id="pcount"></span><span id="pdone"></span></div>
+  <p class="phrase" id="ph"></p>
+  <p class="mean" id="pm"></p>
+  <div class="row">
+    <button class="ghost" id="listen" type="button">🔊 Listen</button>
+    <button class="ghost" id="slow" type="button">🐢 Slow</button>
+    <button class="btn" id="mic1" type="button">🎤 Speak</button>
+    <button class="ghost" id="self1" type="button" hidden>I said it</button>
+  </div>
+  <div class="res" id="res1" hidden></div>
+  <div class="row">
+    <button class="ghost" id="prev" type="button">Back</button>
+    <button class="ghost" id="next" type="button">Next</button>
+  </div>
+</section>
+
+<section id="s2" class="card" hidden>
+  <div id="setup">
+    <div class="group"><p>1. Choose a situation</p><div id="scs"></div></div>
+    <div class="group"><p>2. Choose your role</p><div id="rls"></div></div>
+    <label class="chk"><input type="checkbox" id="hide"> Challenge mode: hide my lines (show clues in Indonesian)</label>
+    <button class="btn" id="go" type="button">Start conversation</button>
+  </div>
+  <div id="conv" hidden>
+    <div class="chat" id="chat"></div>
+    <div id="turn" hidden>
+      <div class="meta"><span id="who"></span><span></span></div>
+      <p class="target" id="tg"></p>
+      <div class="row">
+        <button class="ghost" id="peek" type="button" hidden>Show hint</button>
+        <button class="ghost" id="lis2" type="button">🔊 Listen</button>
+        <button class="btn" id="mic2" type="button">🎤 Speak</button>
+        <button class="ghost" id="self2" type="button" hidden>I said it</button>
+        <button class="ghost" id="skip" type="button">Skip</button>
+      </div>
+      <div class="res" id="res2" hidden></div>
+    </div>
+    <div id="fin" hidden>
+      <p class="pct">Well done!</p>
+      <p>You finished the conversation.</p>
+      <button class="btn" id="again" type="button">Choose another</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+var PH=[
+{t:"Good morning!",m:"Selamat pagi!"},
+{t:"Good afternoon!",m:"Selamat siang / sore!"},
+{t:"How are you doing?",m:"Apa kabar?"},
+{t:"I’m fine, thank you. And you?",m:"Saya baik, terima kasih. Kamu?"},
+{t:"Long time no see!",m:"Lama tidak bertemu!"},
+{t:"Hi, my name is Lany.",m:"Hai, namaku Lany."},
+{t:"Nice to meet you.",m:"Senang bertemu denganmu."},
+{t:"I’m from Indonesia.",m:"Saya berasal dari Indonesia."},
+{t:"I’m a university student.",m:"Saya mahasiswa."},
+{t:"It’s a pleasure to meet you.",m:"Suatu kehormatan bertemu Anda."},
+{t:"See you later!",m:"Sampai jumpa nanti!"}
+];
+var SC=[
+{n:"Meeting a new classmate",roles:["James","Lany"],L:[
+ {r:0,t:"Hi! I’m James. What’s your name?",c:"Sapa dan tanyakan namanya."},
+ {r:1,t:"Hi, James! My name is Lany. Nice to meet you.",c:"Sapa balik, sebut namamu, bilang senang bertemu."},
+ {r:0,t:"Nice to meet you too! Where are you from?",c:"Balas senang bertemu, tanyakan asalnya."},
+ {r:1,t:"I’m from Indonesia. How about you?",c:"Sebut asalmu, tanya balik."},
+ {r:0,t:"I’m from Surabaya. What do you study?",c:"Sebut asalmu, tanyakan jurusannya."},
+ {r:1,t:"I study English. See you around!",c:"Sebut jurusanmu, lalu pamit."},
+ {r:0,t:"See you! Have a nice day.",c:"Pamit dan ucapkan semoga harimu menyenangkan."}]},
+{n:"Meeting a lecturer (formal)",roles:["Mr. Adi","Lany"],L:[
+ {r:0,t:"Good morning. Are you a new student?",c:"Beri salam pagi dan tanyakan apakah dia mahasiswa baru."},
+ {r:1,t:"Good morning, sir. Yes, I am. My name is Lany.",c:"Balas salam, jawab ya, sebut namamu."},
+ {r:0,t:"Welcome, Lany. How are you today?",c:"Sambut dia dan tanyakan kabarnya."},
+ {r:1,t:"I’m fine, thank you. And you?",c:"Jawab baik, terima kasih, lalu tanya balik."},
+ {r:0,t:"Very well, thanks. Please come in.",c:"Jawab sangat baik dan persilakan masuk."},
+ {r:1,t:"Thank you, sir. It’s a pleasure to meet you.",c:"Ucapkan terima kasih dan bilang senang bertemu."}]}
+];
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,synth=window.speechSynthesis,cur=null;
+if(!SR){$("note").hidden=false;$("self1").hidden=false;$("self2").hidden=false;$("mic1").hidden=true;$("mic2").hidden=true}
+
+/* speech out */
+function speak(text,rate,pitch,cb){
+  if(!synth){if(cb)cb();return}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(text.replace(/Mr\./g,"Mister"));u.lang="en-US";u.rate=rate||1;u.pitch=pitch||1;
+  var v=synth.getVoices().filter(function(x){return /^en[-_]US/i.test(x.lang)})[0]||synth.getVoices().filter(function(x){return /^en/i.test(x.lang)})[0];
+  if(v)u.voice=v;
+  var done=false;function fin(){if(!done){done=true;if(cb)cb()}}
+  u.onend=fin;u.onerror=function(e){if(e.error!=="interrupted"&&e.error!=="canceled")fin()};
+  synth.speak(u);
+}
+/* speech in + grading */
+function norm(s){
+  s=s.toLowerCase().replace(/[’']/g,"'").replace(/\bi'm\b/g,"i am").replace(/\bit's\b/g,"it is").replace(/\bwhat's\b/g,"what is").replace(/\bthat's\b/g,"that is").replace(/\bthanks\b/g,"thank you").replace(/mr\.?/g,"mister");
+  return s.replace(/[^a-z' ]/g," ").split(/\s+/).filter(Boolean);
+}
+function grade(target,alts){
+  var tk=norm(target),best=null;
+  alts.forEach(function(a){
+    var pool={};norm(a).forEach(function(w){pool[w]=(pool[w]||0)+1});
+    var toks=tk.map(function(w){var h=pool[w]>0;if(h)pool[w]--;return{w:w,hit:h}});
+    var sc=toks.filter(function(x){return x.hit}).length/tk.length;
+    if(!best||sc>best.score)best={score:sc,heard:a,toks:toks};
+  });
+  return best;
+}
+function listen(target,done){
+  if(!SR){done({err:"unsupported"});return}
+  if(cur){try{cur.abort()}catch(e){}}
+  if(synth)synth.cancel();
+  var r=new SR(),got=false;cur=r;r.lang="en-US";r.maxAlternatives=3;r.interimResults=false;
+  r.onresult=function(e){got=true;var a=[];for(var i=0;i<e.results[0].length;i++)a.push(e.results[0][i].transcript);done(grade(target,a))};
+  r.onerror=function(e){if(!got){got=true;done({err:e.error})}};
+  r.onend=function(){if(!got){got=true;done({err:"no-speech"})}};
+  try{r.start()}catch(e){done({err:"busy"})}
+}
+function errMsg(c){
+  if(c==="not-allowed"||c==="service-not-allowed")return"The microphone is blocked. Allow microphone access in your browser, then try again.";
+  if(c==="no-speech")return"I didn’t hear anything. Speak a little louder and try again.";
+  if(c==="network")return"Speech checking needs an internet connection.";
+  if(c==="aborted"||c==="busy")return"Please tap Speak again.";
+  return"Something went wrong ("+c+"). Please try again.";
+}
+function showRes(el,res,pass){
+  el.hidden=false;
+  if(res.err){el.className="res";el.innerHTML="<p style='margin:0'>"+esc(errMsg(res.err))+"</p>";return}
+  el.className="res"+(pass?" ok":"");
+  el.innerHTML='<p class="pct">'+Math.round(res.score*100)+'%</p><p style="margin:0">'+
+    res.toks.map(function(x){return'<span class="w '+(x.hit?"hit":"miss")+'">'+esc(x.w)+'</span>'}).join("")+
+    '</p><p class="heard">I heard: “'+esc(res.heard)+'”</p><p style="margin:8px 0 0;font-weight:800">'+
+    (pass?"Great job!":"Almost. Listen again and try once more.")+'</p>';
+}
+function busy(btn,on,label){btn.disabled=on;btn.textContent=on?"Listening… speak now":label}
+
+/* tab 1 */
+var i1=0,passed={};
+function r1(){
+  $("ph").textContent=PH[i1].t;$("pm").textContent=PH[i1].m;
+  $("pcount").textContent="Phrase "+(i1+1)+" of "+PH.length;
+  $("pdone").textContent="Passed: "+Object.keys(passed).length+" / "+PH.length+(passed[i1]?"  ✓":"");
+  $("res1").hidden=true;$("prev").disabled=i1===0;$("next").disabled=i1===PH.length-1;
+}
+$("listen").onclick=function(){speak(PH[i1].t,1,1)};
+$("slow").onclick=function(){speak(PH[i1].t,.6,1)};
+$("mic1").onclick=function(){
+  var k=i1,b=$("mic1");busy(b,true);
+  listen(PH[k].t,function(res){busy(b,false,"🎤 Speak");var ok=!res.err&&res.score>=.7;if(ok)passed[k]=1;if(k===i1){showRes($("res1"),res,ok);r1x()}});
+};
+function r1x(){$("pdone").textContent="Passed: "+Object.keys(passed).length+" / "+PH.length+(passed[i1]?"  ✓":"")}
+$("self1").onclick=function(){passed[i1]=1;r1x()};
+$("prev").onclick=function(){i1--;r1()};
+$("next").onclick=function(){i1++;r1()};
+
+/* tab 2 */
+var sc=0,role=0,pos=0,run=0,hid=false;
+function setup(){
+  $("scs").innerHTML="";$("rls").innerHTML="";
+  SC.forEach(function(s,i){var b=document.createElement("button");b.type="button";b.className="chip"+(i===sc?" on":"");b.textContent=s.n;b.onclick=function(){sc=i;role=0;setup()};$("scs").appendChild(b)});
+  SC[sc].roles.forEach(function(n,i){var b=document.createElement("button");b.type="button";b.className="chip"+(i===role?" on":"");b.textContent="I am "+n;b.onclick=function(){role=i;setup()};$("rls").appendChild(b)});
+}
+function bubble(name,text,me){
+  var d=document.createElement("div");d.className="b"+(me?" me":"");d.innerHTML="<small>"+esc(name)+"</small>"+esc(text);
+  $("chat").appendChild(d);d.scrollIntoView({block:"nearest"});
+}
+$("go").onclick=function(){
+  hid=$("hide").checked;pos=0;run++;
+  $("setup").hidden=true;$("conv").hidden=false;$("chat").innerHTML="";$("fin").hidden=true;
+  step(run);
+};
+function step(my){
+  if(my!==run)return;
+  var S=SC[sc],L=S.L[pos];
+  $("turn").hidden=true;
+  if(!L){$("fin").hidden=false;return}
+  if(L.r!==role){
+    bubble(S.roles[L.r],L.t,false);
+    speak(L.t,1,L.r===0?.9:1.15,function(){if(my===run){pos++;step(my)}});
+  }else{
+    $("turn").hidden=false;$("res2").hidden=true;
+    $("who").textContent="Your turn: "+S.roles[role];
+    $("tg").textContent=hid?L.c:L.t;
+    $("peek").hidden=!hid;
+  }
+}
+$("peek").onclick=function(){$("tg").textContent=SC[sc].L[pos].t;$("peek").hidden=true};
+$("lis2").onclick=function(){speak(SC[sc].L[pos].t,1,role===0?.9:1.15)};
+function advance(){var L=SC[sc].L[pos];bubble(SC[sc].roles[role],L.t,true);pos++;step(run)}
+$("mic2").onclick=function(){
+  var my=run,p=pos,b=$("mic2");busy(b,true);
+  listen(SC[sc].L[pos].t,function(res){
+    busy(b,false,"🎤 Speak");if(my!==run||p!==pos)return;
+    var ok=!res.err&&res.score>=.7;showRes($("res2"),res,ok);
+    if(ok)setTimeout(function(){if(my===run&&p===pos)advance()},900);
+  });
+};
+$("self2").onclick=advance;
+$("skip").onclick=advance;
+$("again").onclick=function(){run++;if(synth)synth.cancel();$("conv").hidden=true;$("setup").hidden=false;setup()};
+
+/* tabs */
+function tab(n){
+  $("s1").hidden=n!==1;$("s2").hidden=n!==2;
+  $("t1").className="tab"+(n===1?" on":"");$("t2").className="tab"+(n===2?" on":"");
+  run++;if(synth)synth.cancel();
+  if(n===2&&!$("conv").hidden){$("conv").hidden=true;$("setup").hidden=false}
+}
+$("t1").onclick=function(){tab(1)};$("t2").onclick=function(){tab(2)};
+if(synth)synth.getVoices();
+r1();setup();
+</script>
+</body>
+</html>

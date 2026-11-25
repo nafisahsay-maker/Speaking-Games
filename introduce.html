@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduce Yourself</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<a class="back" href="index.html">Back to Speaking Games</a>
+<h1>Introduce Yourself</h1>
+<p class="sub">Speak freely. Complete all 6 missions in one introduction!</p>
+<p class="note" id="note" hidden>This browser can’t check speech. Use Google Chrome or Microsoft Edge on a laptop. You can still read the missions and tick them yourself.</p>
+
+<section class="card">
+  <div class="meta"><span>Your missions</span><span id="stars"></span></div>
+  <ul class="list" id="list"></ul>
+  <div class="live" id="live">Tap Start, then introduce yourself in your own words. Tap Stop when you finish.</div>
+  <div class="row">
+    <button class="btn" id="mic" type="button">🎤 Start speaking</button>
+    <button class="ghost" id="ex" type="button">🔊 Hear an example</button>
+    <button class="ghost" id="reset" type="button">Try again</button>
+  </div>
+  <div class="res" id="res" hidden></div>
+</section>
+</main>
+
+<script src="speech.js"></script>
+<script>
+var M=[
+{n:"Greet",t:"Say hello.",e:"Hello! / Hi! / Good morning!",p:[/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/]},
+{n:"Name",t:"Say your name.",e:"My name is Lany.",p:[/\bmy name is\b/,/\bcall me\b/,/\bi am (?!(from|a|an|the|studying|fine|good|glad|happy|very|so|in|at|here)\b)[a-z]+/]},
+{n:"Origin",t:"Say where you are from.",e:"I’m from Indonesia.",p:[/\bi am from\b/,/\bi come from\b/,/\bfrom [a-z]+/]},
+{n:"Study or job",t:"Say what you study or do.",e:"I’m a university student. / I study English.",p:[/\bi study\b/,/\bi am studying\b/,/\bi am an? [a-z]+/,/\bi work\b/]},
+{n:"Hobby",t:"Say one thing you like.",e:"I like reading books.",p:[/\bi like\b/,/\bi love\b/,/\bi enjoy\b/,/\bmy hobby\b/]},
+{n:"Closing",t:"Say you are happy to meet them.",e:"Nice to meet you!",p:[/\b(nice|pleasure|glad|pleased) to meet you\b/]}
+];
+var EX="Hello! My name is Lany. I’m from Indonesia. I’m a university student. I like reading books. Nice to meet you!";
+var $=SP.$,ctl=null,text="",timer=null;
+if(!SP.supported){$("note").hidden=false;$("mic").hidden=true}
+function drawList(){
+  var c=SP.clean(text),n=0;
+  $("list").innerHTML=M.map(function(m,i){
+    var on=SP.supported?m.p.some(function(r){return r.test(c)}):!!M[i].manual;
+    if(on)n++;
+    return'<li class="'+(on?"on":"")+'" data-i="'+i+'"><span>'+(on?"✅":"⬜")+'</span><div>'+SP.esc(m.n)+'<span class="t">'+SP.esc(m.t)+' Example: '+SP.esc(m.e)+'</span></div></li>';
+  }).join("");
+  $("stars").textContent=n+" / "+M.length+" ⭐";
+  return n;
+}
+if(!SP.supported){$("list").onclick=function(e){var li=e.target.closest("li");if(li){var m=M[+li.getAttribute("data-i")];m.manual=!m.manual;drawList()}}}
+function stopAll(){if(ctl){ctl.stop();ctl=null}}
+$("mic").onclick=function(){
+  var b=$("mic");
+  if(ctl){stopAll();return}
+  text="";$("res").hidden=true;drawList();
+  $("live").textContent="Listening… speak now.";b.textContent="⏹ Stop";
+  clearTimeout(timer);
+  ctl=SP.many(function(t){text=t;$("live").textContent=t||"Listening… speak now.";drawList()},function(err){
+    clearTimeout(timer);ctl=null;b.textContent="🎤 Start speaking";
+    var n=drawList();
+    if(err&&!text){$("live").textContent=SP.errMsg(err);return}
+    var e=$("res");e.hidden=false;e.className="res "+(n===M.length?"ok":"no");
+    var miss=M.filter(function(m){return!m.p.some(function(r){return r.test(SP.clean(text))})}).map(function(m){return m.n});
+    e.innerHTML="<p class='big' style='font-size:34px'>"+n+" / "+M.length+" ⭐</p><p><b>"+(n===M.length?"Perfect introduction!":n>=4?"Almost there!":"Good start. Try again and add more details.")+"</b></p>"+
+      (miss.length?"<p>Still missing: "+SP.esc(miss.join(", "))+"</p>":"")+"<p class='heard'>I heard: “"+SP.esc(text)+"”</p>";
+  });
+  timer=setTimeout(stopAll,45000);
+};
+$("ex").onclick=function(){SP.speak(EX,.95,1.1)};
+$("reset").onclick=function(){stopAll();SP.cancelSpeech();text="";M.forEach(function(m){m.manual=false});$("res").hidden=true;$("live").textContent="Tap Start, then introduce yourself in your own words. Tap Stop when you finish.";drawList()};
+drawList();
+</script>
+</body>
+</html>
